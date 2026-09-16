@@ -1,8 +1,17 @@
 [package]
 name = "sentry-wasi"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 [dependencies]
 sentry = { version = "0.47.0", default-features = false }
-wstd = "0.6"
+wstd = { version = "0.6", optional = true }
+wasi-fetch = { version = "0.2", optional = true }
+wasip3 = { version = "0.7", optional = true, features = ["async-spawn"] }
+
+[features]
+default = []
+# WASI p2 HTTP transport, using wstd.
+wasip2 = ["dep:wstd"]
+# WASI p3 HTTP transport, using wasi-fetch.
+wasip3 = ["dep:wasi-fetch", "dep:wasip3"]

@@ -4,7 +4,17 @@ Wrapper library around sentry to make it usable in wasm components.
 
 Also reexports sentry library for ease of use.
 
-Implements custom Sentry transport using wstd.
+Implements a custom Sentry transport for either WASI p2 (via `wstd`)
+or WASI p3 (via `wasi-fetch`), selected with Cargo features.
+
+```toml
+[dependencies]
+# WASI p2
+sentry-wasi = { version = "0.2", features = ["wasip2"] }
+
+# WASI p3
+sentry-wasi = { version = "0.2", features = ["wasip3"] }
+```
 
 ```rust
 use sentry_wasi::sentry;
