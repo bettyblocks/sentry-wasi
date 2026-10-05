@@ -12,4 +12,4 @@ pub use wasip2::WasiTransport;
 #[cfg(feature = "wasip3")]
 mod wasip3;
 #[cfg(feature = "wasip3")]
-pub use wasip3::WasiTransport;
+pub use wasip3::{FlushReport, QueuedWasiTransport, WasiTransport, flush};

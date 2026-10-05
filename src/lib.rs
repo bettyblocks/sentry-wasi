@@ -4,6 +4,17 @@
 //!
 //! Implements custom Sentry transport using wstd.
 //!
+//! ## Awaiting delivery (`wasip3`)
+//!
+//! [`create_transport`] sends from a detached task, which is lost if the
+//! component call ends first. [`create_queued_transport`] queues instead;
+//! `.await` [`flush`] before returning to send and get the HTTP status:
+//!
+//! ```ignore
+//! sentry::capture_message("boom", sentry::Level::Error);
+//! let report = sentry_wasi::flush().await;
+//! ```
+//!
 //! ```rust
 //! use sentry_wasi::sentry;
 //!
@@ -32,9 +43,21 @@ use sentry::{ClientOptions, Transport, TransportFactory};
 use std::sync::Arc;
 use transport::WasiTransport;
 
+#[cfg(feature = "wasip3")]
+pub use transport::{FlushReport, QueuedWasiTransport, flush};
+
 /// transport that can be used in wasm components
 pub fn create_transport() -> Arc<dyn TransportFactory> {
     Arc::new(|options: &ClientOptions| -> Arc<dyn Transport> {
         Arc::new(WasiTransport::new(options))
+    })
+}
+
+/// Like [`create_transport`], but envelopes are queued until [`flush`] is
+/// awaited, so delivery can be awaited and its status inspected.
+#[cfg(feature = "wasip3")]
+pub fn create_queued_transport() -> Arc<dyn TransportFactory> {
+    Arc::new(|options: &ClientOptions| -> Arc<dyn Transport> {
+        Arc::new(QueuedWasiTransport::new(options))
     })
 }

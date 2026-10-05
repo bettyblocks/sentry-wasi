@@ -36,4 +36,19 @@ sentry::configure_scope(|scope| {
 });
 ```
 
+## Awaiting delivery (WASI p3)
+
+`create_transport()` sends from a detached task: if the component call returns
+first, the event is lost. `create_queued_transport()` queues envelopes and
+`sentry_wasi::flush().await` sends them and reports the HTTP statuses:
+
+```rust
+let _guard = sentry::init(sentry::ClientOptions {
+    transport: Some(sentry_wasi::create_queued_transport()),
+    ..Default::default()
+});
+sentry::capture_message("boom", sentry::Level::Error);
+let report = sentry_wasi::flush().await; // report.statuses, report.errors
+```
+
 Based on: [wasi-sentry-demo](https://github.com/Aditya1404Sal/wasi-sentry-demo)
